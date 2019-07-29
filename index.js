@@ -1,67 +1,131 @@
-const express = require('express');
+var allHydroData;
+var allCostData;
+var allSiteNames = [];
 
-const app = express();
+var seriesData = [];
 
-//app.use(express.static('public'));
+var HttpClient = function() {
+    this.get = function(aUrl, aCallback) {
+        var anHttpRequest = new XMLHttpRequest();
+        anHttpRequest.onreadystatechange = function() { 
+            if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200)
+                aCallback(anHttpRequest.responseText);
+        }
 
-var MongoClient = require('mongodb').MongoClient;
-var assert = require('assert');
- 
-var cloud = true;
- 
-var mongodbHost = '127.0.0.1';
-var mongodbPort = '27017';
- 
-var authenticate ='';
-//cloud
-if (cloud) {
- mongodbHost = 'ds261486.mlab.com';
- mongodbPort = '61486';
- authenticate = 'zafeer:zafeer123@'
+        anHttpRequest.open( "GET", aUrl, true );            
+        anHttpRequest.send( null );
+    }
 }
- 
-var mongodbDatabase = 'hydrodata';
 
-var test = "DOes this workKKK"
- 
-// connect string for mongodb server running locally, connecting to a database called test
-var url = 'mongodb://'+authenticate+mongodbHost+':'+mongodbPort + '/' + mongodbDatabase;
+var client = new HttpClient();
+
+client.get('http://localhost:3000/hydro', function(response) {
+    responseArray = JSON.parse(response)
+    allHydroData = responseArray;
+
+    for (let i = 0; i < allHydroData.length; i++) {
+        allSiteNames.push(allHydroData[i].eng)
+    }
+    console.log("Done fetching hydro data");
+    console.log(allSiteNames);
+
+    startAutocomplete();
+})
+
+client.get('http://localhost:3000/cost', function(response) {
+    responseArray = JSON.parse(response)
+    allCostData = responseArray;
+    console.log("Done fetching cost data")
+})
 
 
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", '*');
-    res.header("Access-Control-Allow-Credentials", true);
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-    res.header("Access-Control-Allow-Headers", 'Origin,X-Requested-With,Content-Type,Accept,content-type,application/json');
-    next();
-});
 
-app.get('/cost', (req, res) => {
-    MongoClient.connect(url, function(err, db) {
-        assert.equal(null, err);
-        console.log("Connected correctly to server.");
-         db.collection('cost2018').find({}).toArray(function(err, results){
-             //console.log(results.find(site => site.eng === 'A0142'));
-             db.close();
-             console.log("Connection to database is closed.");
-             res.send(results)
-         });
-     }) 
-});
+function searchSite() {
+    let input = document.getElementById('searchSites');
+    //console.log(input);
+    let site = input.value;
+    console.log(site)
+    let powerDBData = allHydroData.find(object => object.eng === site);
+    let costDBData = allCostData.find(object => object.eng === site);
 
-app.get('/hydro', (req, res) => {
-    MongoClient.connect(url, function(err, db) {
-        assert.equal(null, err);
-        console.log("Connected correctly to server.");
-     
-         db.collection('directhydro2018').find({}).toArray(function(err, results){
-             //console.log(results.find(site => site.eng === 'A0142'));
-             db.close();
-             console.log("Connection to database is closed.");
-             res.send(results)
-         }); 
-     }) 
-	
-});
+    let powerChartData = [
+        powerDBData.Jan,
+        powerDBData.Feb,
+        powerDBData.Mar,
+        powerDBData.Apr,
+        powerDBData.May,
+        powerDBData.June,
+        powerDBData.July,
+        powerDBData.Aug,
+        powerDBData.Sept,
+        powerDBData.Oct,
+        powerDBData.Nov,
+        powerDBData.Dec
+    ];
 
-app.listen(3000, () => console.log('server started'));
+    let costChartData = [
+        costDBData.Jan,
+        costDBData.Feb,
+        costDBData.Mar,
+        costDBData.Apr,
+        costDBData.May,
+        costDBData.June,
+        costDBData.July,
+        costDBData.Aug,
+        costDBData.Sept,
+        costDBData.Oct,
+        costDBData.Nov,
+        costDBData.Dec
+    ];
+
+    let plotBandsData = checkChange(powerChartData, costChartData)
+
+    seriesData = [{name: site, data: powerChartData}]
+
+    drawHydroGraph(seriesData, plotBandsData);
+    drawCostGraph(seriesData, plotBandsData);
+}
+
+function addSite() {
+    var input = document.getElementById('addSiteID');
+    var site = input.value;
+    var powerDBData = allHydroData.find(object => object.eng === site);
+    var costDBData = allCostData.find(object => object.eng === site);
+
+    let powerChartData = [
+        powerDBData.Jan,
+        powerDBData.Feb,
+        powerDBData.Mar,
+        powerDBData.Apr,
+        powerDBData.May,
+        powerDBData.June,
+        powerDBData.July,
+        powerDBData.Aug,
+        powerDBData.Sept,
+        powerDBData.Oct,
+        powerDBData.Nov,
+        powerDBData.Dec
+    ];
+
+    let costChartData = [
+        costDBData.Jan,
+        costDBData.Feb,
+        costDBData.Mar,
+        costDBData.Apr,
+        costDBData.May,
+        costDBData.June,
+        costDBData.July,
+        costDBData.Aug,
+        costDBData.Sept,
+        costDBData.Oct,
+        costDBData.Nov,
+        costDBData.Dec
+    ];
+
+    let plotBandsData = null
+
+    seriesData.push({name: site, data: powerChartData});
+
+    drawHydroGraph(seriesData, plotBandsData);
+    drawCostGraph(seriesData, plotBandsData);
+}
