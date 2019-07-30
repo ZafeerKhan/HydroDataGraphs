@@ -2,7 +2,8 @@ var allHydroData;
 var allCostData;
 var allSiteNames = [];
 
-var seriesData = [];
+var powerArr = [];
+var costArr = [];
 
 var HttpClient = function() {
     this.get = function(aUrl, aCallback) {
@@ -80,10 +81,11 @@ function searchSite() {
 
     let plotBandsData = checkChange(powerChartData, costChartData)
 
-    seriesData = [{name: site, data: powerChartData}]
+    powerArr = [{name: site, data: powerChartData}]
+    costArr = [{name: site, data: costChartData}]
 
-    drawHydroGraph(seriesData, plotBandsData);
-    drawCostGraph(seriesData, plotBandsData);
+    drawHydroGraph(powerArr, plotBandsData);
+    drawCostGraph(costArr, plotBandsData);
 }
 
 function addSite() {
@@ -124,8 +126,9 @@ function addSite() {
 
     let plotBandsData = null
 
-    seriesData.push({name: site, data: powerChartData});
+    powerArr.push({name: site, data: powerChartData});
+    costArr.push({name: site, data: costChartData})
 
-    drawHydroGraph(seriesData, plotBandsData);
-    drawCostGraph(seriesData, plotBandsData);
+    drawHydroGraph(powerArr, plotBandsData);
+    drawCostGraph(costArr, plotBandsData);
 }
