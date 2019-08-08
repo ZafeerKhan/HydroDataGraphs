@@ -89,7 +89,7 @@ function searchSite() {
 }
 
 function addSite() {
-    var input = document.getElementById('addSiteID');
+    var input = document.getElementById('searchSites');
     var site = input.value;
     var powerDBData = allHydroData.find(object => object.eng === site);
     var costDBData = allCostData.find(object => object.eng === site);
