@@ -6,7 +6,7 @@ function drawHydroGraph(seriesData, plotBandsData) {
             type: 'areaspline'
         },
         title: {
-            text: 'Power Consumption for Site ' + site + " in 2018"
+            text: 'Power Consumption in 2018'
         },
         legend: {
             layout: 'vertical',

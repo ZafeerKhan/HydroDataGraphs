@@ -15,7 +15,7 @@ function startAutocomplete() {
         $('.autocomplete input').click(function() {
             if (!alreadyFilled) {
                 $('.dialog').addClass('open');
-            }
+             }
     
         });
         $('body').on('click', '.dialog > div', function() {

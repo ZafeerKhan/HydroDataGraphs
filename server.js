@@ -62,4 +62,19 @@ app.get('/hydro', (req, res) => {
 	
 });
 
+app.get('/siteLocations', (req, res) => {
+    MongoClient.connect(url, function(err, db) {
+        assert.equal(null, err);
+        console.log("Connected correctly to server.");
+     
+         db.collection('ranDBSites').find({}).toArray(function(err, results){
+             //console.log(results.find(site => site.eng === 'A0142'));
+             db.close();
+             console.log("Connection to database is closed.");
+             res.send(results)
+         }); 
+     }) 
+	
+});
+
 app.listen(3000, () => console.log('server started'));

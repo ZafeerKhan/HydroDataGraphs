@@ -6,7 +6,7 @@ function drawCostGraph(seriesData, plotBandsData) {
             type: 'areaspline'
         },
         title: {
-            text: 'Cost for Site ' + site + " in 2018"
+            text: 'Cost for Site in 2018'
         },
         legend: {
             layout: 'vertical',
